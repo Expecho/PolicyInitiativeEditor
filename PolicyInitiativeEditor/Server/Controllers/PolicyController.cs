@@ -33,6 +33,7 @@ namespace PolicyInitiativeEditor.Server.Controllers
                     yield return new PolicyDto(
                             policy.Data.Id!,
                             policy.Data.DisplayName,
+                            policy.Data.PolicyType.ToString(),
                             policy.Data.Metadata!.ToObjectFromJson<JsonNode>()["category"]!.ToString(),
                             policy.Data.Description);
                 }

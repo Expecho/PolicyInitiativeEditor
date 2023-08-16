@@ -2,11 +2,9 @@
 @using PolicyInitiativeEditor.Shared
 @inject HttpClient Http
 
-<PageTitle>Weather forecast</PageTitle>
+<PageTitle>Policy Initiative Bicep Builder</PageTitle>
 
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
+<h1>Policy Initiative Bicep Builder</h1>
 
 @if (policies == null)
 {
@@ -14,34 +12,34 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>@nameof(PolicyDto.Id)</th>
-                <th>@nameof(PolicyDto.Name)</th>
-                <th>@nameof(PolicyDto.Category)</th>
-                <th>@nameof(PolicyDto.Description)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var policy in policies)
-            {
-                <tr>
-                    <td>@policy.Id</td>
-                    <td>@policy.Name</td>
-                    <td>@policy.Category</td>
-                    <td>@policy.Description</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <RadzenDataGrid Data="@policies" TItem="PolicyDto" AllowColumnResize=true AllowSorting=true 
+        AllowMultiColumnSorting=true AllowFiltering=true AllowGrouping=true AllowAlternatingRows=true
+        SelectionMode="DataGridSelectionMode.Multiple" AllowPaging=true PageSize="25"
+        @bind-Value=@selectedPolicies>
+        <Columns>
+            <RadzenDataGridColumn TItem="PolicyDto" Property="Category" Title="Category" SortOrder="SortOrder.Ascending" Width="175px" />
+            <RadzenDataGridColumn TItem="PolicyDto" Property="Type" Title="Type" Width="125px" />
+            <RadzenDataGridColumn TItem="PolicyDto" Property="Name" Title="Name" SortOrder="SortOrder.Ascending" />
+            <RadzenDataGridColumn TItem="PolicyDto" Property="Description" Title="Description" Groupable=false Sortable=false />
+        </Columns>
+    </RadzenDataGrid>
 }
 
 @code {
-    private PolicyDto[]? policies;
+    private IEnumerable<PolicyDto>? policies;
+    private IList<PolicyDto>? selectedPolicies;
 
     protected override async Task OnInitializedAsync()
     {
-        policies = await Http.GetFromJsonAsync<PolicyDto[]>("policy");
+        policies = await Http.GetFromJsonAsync<IEnumerable<PolicyDto>>("policy");
     }
+
+    //void OnRender(DataGridRenderEventArgs<PolicyDto> args)
+    //{
+    //    if (args.FirstRender)
+    //    {
+    //        args.Grid.Groups.Add(new GroupDescriptor() { Property = "Category" });
+    //        StateHasChanged();
+    //    }
+    //}
 }
