@@ -1,0 +1,47 @@
+﻿@page "/"
+@using PolicyInitiativeEditor.Shared
+@inject HttpClient Http
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (policies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@nameof(PolicyDto.Id)</th>
+                <th>@nameof(PolicyDto.Name)</th>
+                <th>@nameof(PolicyDto.Category)</th>
+                <th>@nameof(PolicyDto.Description)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var policy in policies)
+            {
+                <tr>
+                    <td>@policy.Id</td>
+                    <td>@policy.Name</td>
+                    <td>@policy.Category</td>
+                    <td>@policy.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private PolicyDto[]? policies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        policies = await Http.GetFromJsonAsync<PolicyDto[]>("policy");
+    }
+}
