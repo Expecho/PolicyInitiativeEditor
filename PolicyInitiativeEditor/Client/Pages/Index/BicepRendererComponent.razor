@@ -1,0 +1,12 @@
+﻿@using PolicyInitiativeEditor.Client.Domain;
+@using PolicyInitiativeEditor.Shared;
+@inject BicepBuilder BicepBuilder
+<div>
+    <RadzenCheckBox Change=@OnChangeOption TriState="false" TValue="bool" @bind-Value=@options.IncludePolicyDefinitionsSection Name="CheckBoxIncludePolicyDefinitionsSection" />
+    <RadzenLabel Text="Include 'policyDefinitions' section" Component="CheckBoxIncludePolicyDefinitionsSection" Style="margin-left: 8px; vertical-align: middle;" />
+</div>
+<div>
+    <RadzenCheckBox Change=@OnChangeOption TriState="false" TValue="bool" @bind-Value=@options.IncludeEffectParamater Name="CheckBoxIncludeEffect" />
+    <RadzenLabel Text="Include 'effect' parameter" Component="CheckBoxIncludeEffect" Style="margin-left: 8px; vertical-align: middle;" />
+</div>
+<RadzenTextArea Name="TextAreaBicep" Rows=30 Style="width: 100%; height: 100%" Value=@bicep />

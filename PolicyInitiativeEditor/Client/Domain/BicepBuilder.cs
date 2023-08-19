@@ -5,13 +5,6 @@ namespace PolicyInitiativeEditor.Client.Domain
 {
     public class BicepBuilder
     {
-        private readonly ILogger<BicepBuilder> logger;
-
-        public BicepBuilder(ILogger<BicepBuilder> logger)
-        {
-            this.logger = logger;
-        }
-
         public string CreateBicepFromPolicies(IEnumerable<Policy> policies, Options options)
         {
             var bicep = new StringBuilder();

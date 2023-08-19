@@ -1,0 +1,34 @@
+﻿@page "/"
+@using PolicyInitiativeEditor.Client.Domain;
+@using PolicyInitiativeEditor.Shared
+@inject HttpClient Http
+
+<PageTitle>Policy Initiative Bicep Builder</PageTitle>
+
+<h1>Policy Initiative Bicep Builder</h1>
+
+<RadzenTabs Change=@OnChangeTab TabPosition="TabPosition.Top" Gap="0.5rem" Class="rz-pt-4 rz-pb-8">
+    <Tabs>
+        <RadzenTabsItem Text="Define Initiative">
+            <p>Select the policies that should be assigned to the initiative.</p>
+            @if (policies == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <PolicyGridComponent Policies=@policies SelectedPolicies=@selectedPolicies SelectedPoliciesChanged="OnSelectedPoliciesChanged" />
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Create Bicep">
+            @if (selectedPolicies == null || selectedPolicies.Count == 0)
+            {
+                <p><em>Please assign one or more policies to the initiative.</em></p>
+            }
+            else
+            {
+                <BicepRendererComponent Policies=@selectedPolicies />
+            }
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
