@@ -18,11 +18,5 @@ namespace PolicyInitiativeEditor.Client.Pages.Index
         {
             selectedPolicies = policies;
         }
-
-        private void OnChangeTab(int tabIndex)
-        {
-           // if (selectedPolicies != null && selectedPolicies.Count > 0 && tabIndex == 1)
-                //bicep = BicepBuilder.CreateBicepFromPolicies(selectedPolicies!, options);
-        }
     }
 }
