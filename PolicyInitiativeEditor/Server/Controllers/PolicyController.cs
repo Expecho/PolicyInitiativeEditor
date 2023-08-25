@@ -24,7 +24,7 @@ namespace PolicyInitiativeEditor.Server.Controllers
             var tenantCollection = armClient.GetTenants();
             var tenants = await tenantCollection.GetAllAsync().ToListAsync();
             var tenant = tenants.First();
-            var policyDefinitions = tenant.GetTenantPolicyDefinitions();
+            var policyDefinitions = (await tenant.GetManagementGroupAsync("testprod")).Value.GetManagementGroupPolicyDefinitions();
 
             await foreach (var page in policyDefinitions.GetAllAsync().AsPages(pageSizeHint: 100))
             {

@@ -1,5 +1,4 @@
-﻿using PolicyInitiativeEditor.Client.Domain;
-using PolicyInitiativeEditor.Shared;
+﻿using PolicyInitiativeEditor.Shared;
 using System.Net.Http.Json;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
