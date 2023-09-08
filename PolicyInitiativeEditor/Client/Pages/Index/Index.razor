@@ -11,6 +11,7 @@
     <Tabs>
         <RadzenTabsItem Text="Define Initiative">
             <p>Select the policies that should be assigned to the initiative.</p>
+            <InputFile OnChange="OnInputFileChange" class="btn btn-primary"></InputFile>
             @if (policies == null)
             {
                 <p><em>Loading...</em></p>
@@ -27,7 +28,7 @@
             }
             else
             {
-                <BicepRendererComponent Policies=@selectedPolicies />
+                <BicepRendererComponent Policies=@selectedPolicies Bicep=@existingInitiative />
             }
         </RadzenTabsItem>
     </Tabs>

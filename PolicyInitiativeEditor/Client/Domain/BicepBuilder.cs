@@ -5,81 +5,106 @@ namespace PolicyInitiativeEditor.Client.Domain
 {
     public class BicepBuilder
     {
-        private readonly StringBuilder initiative = new();
-        private readonly StringBuilder includedPolicies = new();
-        private readonly StringBuilder initiativeGroups = new();
-        private readonly List<string> groupNames = new();
+        private List<string> initiative = new();
+        private List<string> policiesInInitiative = new();
+        private int indexOfPolicyDefinitionSection;
 
-        public string CreateBicepFromPolicies(IEnumerable<Policy> policies)
+        public string CreateBicepFromPolicies(string sourceTemplate, IEnumerable<Policy> policies)
         {
-            initiative.Clear();
-            includedPolicies.Clear();
-            initiativeGroups.Clear();
-            groupNames.Clear();
+            if(!initiative.Any())
+                initiative = sourceTemplate.Split("\n").ToList();
 
+            indexOfPolicyDefinitionSection = DetermineIndexOfPolicyDefinitionSection();
+            policiesInInitiative = FindPolicies();
 
-            foreach (var policy in policies)
+            foreach (var policy in policies.Where(policy => !policiesInInitiative.Contains(policy.Id)))
             {
-                OutputPolicy(policy);
-                OutputGroup(policy);
+                initiative.InsertRange(indexOfPolicyDefinitionSection, BuildPolicyOutput(policy));
             }
 
-            initiative.AppendLine("policyDefinitionGroups: [");
-            initiative.Append(initiativeGroups);
-            initiative.AppendLine("]");
+            foreach (var policy in policiesInInitiative.Where(policy => !policies.Select(p => p.Id).Contains(policy)))
+            {
+                RemovePolicy(policy);
+            }
 
-            initiative.AppendLine("policyDefinitions: [");
-            initiative.Append(includedPolicies);
-            initiative.AppendLine("]");
-
-            return initiative.ToString();
+            return string.Join("\n", initiative);
         }
 
-        private void OutputPolicy(Policy policy)
+        private int DetermineIndexOfPolicyDefinitionSection()
         {
-            includedPolicies.AppendLine("\t{");
-            includedPolicies.AppendLine($"\t\tpolicyDefinitionId: '{policy.Id}'");
-            includedPolicies.AppendLine($"\t\tpolicyDefinitionReferenceId: '{policy.Name}'");
-            includedPolicies.AppendLine("\t\tgroupNames: [");
-            includedPolicies.AppendLine($"\t\t\t'{policy.Category}'");
-            includedPolicies.AppendLine("\t\t]");
-
-            OutputParametersIfAny(policy);
-
-            includedPolicies.AppendLine("\t}");
+            var startIndex = initiative.FindIndex(0, s => s.Contains("policyDefinitions: ["));
+            return startIndex + 1;
         }
 
-        private void OutputParametersIfAny(Policy policy)
+        private static List<string> BuildPolicyOutput(Policy policy)
         {
-            if(!policy.Parameters.Any())
-                return;
+            var policyDefinition = new List<string>
+            { 
+                "\t{",
+                $"\t\tpolicyDefinitionId: '{policy.Id}'",
+                $"\t\tpolicyDefinitionReferenceId: '{policy.Name}'",
+                "\t}"
+            };
 
-            includedPolicies.AppendLine("\t\tparameters: {");
+            policyDefinition.InsertRange(3, BuildPolicyParameterOutput(policy));
+
+            return policyDefinition;
+        }
+
+        private static List<string> BuildPolicyParameterOutput(Policy policy)
+        {
+            var parameters = new List<string>();
+
+            if (!policy.Parameters.Any())
+                return parameters;
+
+            parameters.Add("\t\tparameters: {");
 
             foreach (var parameter in policy.Parameters)
             {
-                includedPolicies.AppendLine($"\t\t\t{parameter.Name}:{{");
+                parameters.Add($"\t\t\t{parameter.Name}:{{");
 
                 var parameterValue = parameter.DefaultValue?.Replace("\"", "'") ?? "[NOT_SET]";
-                includedPolicies.AppendLine($"\t\t\t\tvalue: {parameterValue} // {parameter.Type} {parameter.AllowedValues}");
-                includedPolicies.AppendLine("\t\t\t}");
+                parameters.Add($"\t\t\t\tvalue: {parameterValue} // {parameter.Type} {parameter.AllowedValues}");
+                parameters.Add("\t\t\t}");
             }
 
-            includedPolicies.AppendLine("\t\t}");
+            parameters.Add("\t\t}");
+
+            return parameters;
         }
 
-        private void OutputGroup(Policy policy)
+        private void RemovePolicy(string policyIdentifier)
         {
-            if(groupNames.Contains(policy.Category))
+            var startIndex = initiative.FindIndex(indexOfPolicyDefinitionSection, s => s.Contains(policyIdentifier));
+            var countOfOpen = 1;
+            var countOfClosed = 0;
+            var index = startIndex;
+
+            if(startIndex == -1)
                 return;
 
-            groupNames.Add(policy.Category);
+            while (countOfOpen != countOfClosed && index < initiative.Count)
+            {
+                var line = initiative[index];
+                if (line.Contains('{'))
+                    ++countOfOpen;
+                else if (line.Contains('}'))
+                    ++countOfClosed;
 
-            initiativeGroups.AppendLine("\t{");
-            initiativeGroups.AppendLine($"\t\tname: '{policy.Category}'");
-            initiativeGroups.AppendLine($"\t\tdisplayName: '{policy.Category}'");
-            initiativeGroups.AppendLine($"\t\tcategory: '{policy.Category}'");
-            initiativeGroups.AppendLine("\t}");
+                ++index;
+            }
+
+            if(index != initiative.Count)
+                initiative.RemoveRange(startIndex - 1, index - startIndex + 1);
+        }
+
+        private List<string> FindPolicies()
+        {
+            return initiative.FindAll(s => s.Contains("policyDefinitionId: '")).Select(s =>
+            {
+                return s[(s.IndexOf("'") + 1)..s.LastIndexOf("'")];
+            }).ToList();
         }
     }
 }
