@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using PolicyInitiativeEditor.Shared;
 using System.Net.Http.Json;
-using System.Reflection;
 using System.Text;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
@@ -11,10 +10,12 @@ namespace PolicyInitiativeEditor.Client.Pages.Index
         private IEnumerable<Policy> policies = new List<Policy>();
         private IList<Policy> selectedPolicies = new List<Policy>();
         private string existingInitiative = string.Empty;
+        private bool busyInitializing = true;
 
         protected override async Task OnInitializedAsync()
         {
             policies = (await Http.GetFromJsonAsync<IEnumerable<Policy>>("policy"))!;
+            busyInitializing = false;
         }
 
         private void OnSelectedPoliciesChanged(IList<Policy> policies)
