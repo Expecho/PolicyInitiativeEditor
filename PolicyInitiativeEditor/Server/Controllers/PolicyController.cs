@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Azure.ResourceManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PolicyInitiativeEditor.Shared;
 using System.Text.Json.Nodes;
@@ -7,6 +8,7 @@ using System.Text.Json.Nodes;
 namespace PolicyInitiativeEditor.Server.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class PolicyController : ControllerBase
     {
