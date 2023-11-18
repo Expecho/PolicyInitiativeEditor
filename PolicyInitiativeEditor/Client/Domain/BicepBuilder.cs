@@ -1,5 +1,4 @@
-﻿using PolicyInitiativeEditor.Shared;
-using System.Text;
+﻿using PolicyInitiativeEditor.Client.Models;
 
 namespace PolicyInitiativeEditor.Client.Domain
 {

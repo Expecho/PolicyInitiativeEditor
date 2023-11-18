@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using PolicyInitiativeEditor.Shared;
-using System.Net.Http.Json;
-using System.Text;
+﻿using System.Text;
+using Microsoft.AspNetCore.Components.Forms;
+using PolicyInitiativeEditor.Client.Models;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
 {
     public partial class Index
     {
+        private IEnumerable<Tenant> tenants = new List<Tenant>();
         private IEnumerable<Policy> policies = new List<Policy>();
         private IList<Policy> selectedPolicies = new List<Policy>();
         private string existingInitiative = string.Empty;
@@ -14,10 +14,16 @@ namespace PolicyInitiativeEditor.Client.Pages.Index
 
         protected override async Task OnInitializedAsync()
         {
-            policies = (await Http.GetFromJsonAsync<IEnumerable<Policy>>("policy"))!;
+            tenants = await azureResourceRepository.GetTenantsAsync().ToListAsync();
             busyInitializing = false;
         }
 
+        private async Task OnSelectedTenantChanged(Tenant tenant)
+        {
+           policies = await azureResourceRepository.GetPoliciesAsync(tenant).ToListAsync();
+        }
+
+        
         private void OnSelectedPoliciesChanged(IList<Policy> policies)
         {
             selectedPolicies = policies;

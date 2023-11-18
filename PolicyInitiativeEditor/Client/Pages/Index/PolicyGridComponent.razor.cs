@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PolicyInitiativeEditor.Shared;
+using PolicyInitiativeEditor.Client.Models;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
 {

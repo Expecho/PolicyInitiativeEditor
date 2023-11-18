@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PolicyInitiativeEditor.Client.Domain;
-using PolicyInitiativeEditor.Shared;
+using PolicyInitiativeEditor.Client.Models;
 using System.Reflection;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
