@@ -1,12 +1,10 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Components.Forms;
-using PolicyInitiativeEditor.Client.Models;
+﻿using PolicyInitiativeEditor.Client.Models;
+using Radzen;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
 {
     public partial class Index
     {
-        private IEnumerable<Tenant> tenants = new List<Tenant>();
         private IEnumerable<Policy> policies = new List<Policy>();
         private IList<Policy> selectedPolicies = new List<Policy>();
         private string existingInitiative = string.Empty;
@@ -14,40 +12,36 @@ namespace PolicyInitiativeEditor.Client.Pages.Index
 
         protected override async Task OnInitializedAsync()
         {
-            tenants = await azureResourceRepository.GetTenantsAsync().ToListAsync();
+            var settings = (Settings)await DialogService.OpenAsync<SettingsComponent>("Settings");
+            policies = await azureResourceRepository.GetPoliciesAsync(settings.Tenant).ToListAsync();
+
+            if(settings.BicepTemplate != null)
+            {
+                SelectPoliciesBasedOnUploadedBicepTemplate(settings);
+            }
+
             busyInitializing = false;
         }
 
-        private async Task OnSelectedTenantChanged(Tenant tenant)
+        private void SelectPoliciesBasedOnUploadedBicepTemplate(dynamic settings)
         {
-           policies = await azureResourceRepository.GetPoliciesAsync(tenant).ToListAsync();
-        }
-
-        
-        private void OnSelectedPoliciesChanged(IList<Policy> policies)
-        {
-            selectedPolicies = policies;
-        }
-
-        private async Task OnInputFileChange(InputFileChangeEventArgs e)
-        {
-            using var stream = e.File.OpenReadStream();
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            stream.Close();
-
-            existingInitiative = Encoding.UTF8.GetString(ms.ToArray());
+            existingInitiative = settings.BicepTemplate;
             var bicep = existingInitiative.Split("\n").ToList();
 
             var policiesInExisitingInitiative = FindPolicies(bicep);
             selectedPolicies = policies.Where(p => policiesInExisitingInitiative.Contains(p.Id)).ToList();
         }
 
+        private void OnSelectedPoliciesChanged(IList<Policy> policies)
+        {
+            selectedPolicies = policies;
+        }        
+
         private static List<string> FindPolicies(List<string> bicep)
         {
             return bicep.FindAll(s => s.Contains("policyDefinitionId: '")).Select(s =>
             {
-                return s[(s.IndexOf("'")+1)..s.LastIndexOf("'")];
+                return s[(s.IndexOf("'") + 1)..s.LastIndexOf("'")];
             }).ToList();
         }
     }

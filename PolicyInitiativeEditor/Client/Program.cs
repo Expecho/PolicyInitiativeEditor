@@ -6,22 +6,22 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Azure;
 using PolicyInitiativeEditor.Client;
 using PolicyInitiativeEditor.Client.Domain;
+using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+builder.Services.AddScoped<DialogService>();
 builder.Services.AddSingleton<BicepBuilder>();
 builder.Services.AddSingleton<AzureResourceRepository>();
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
     options.ProviderOptions.DefaultAccessTokenScopes.Add("https://management.core.windows.net/user_impersonation");
-    options.ProviderOptions.AdditionalScopesToConsent.Add("https://management.core.windows.net/user_impersonation");
 });
 var scopes = new List<string>() {
     "https://management.core.windows.net/user_impersonation",
-    "https://management.core.windows.net"
 };
 
 builder.Services.AddAzureClients(b =>

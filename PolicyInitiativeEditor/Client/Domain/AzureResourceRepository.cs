@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using Azure.ResourceManager;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using PolicyInitiativeEditor.Client.Models;
 
 namespace PolicyInitiativeEditor.Client.Domain
@@ -7,10 +8,12 @@ namespace PolicyInitiativeEditor.Client.Domain
     public class AzureResourceRepository
     {
         private readonly ArmClient armClient;
+        private readonly IConfiguration configuration;
 
-        public AzureResourceRepository(ArmClient armClient)
+        public AzureResourceRepository(ArmClient armClient, IConfiguration configuration)
         {
             this.armClient = armClient;
+            this.configuration = configuration;
         }
 
         public async IAsyncEnumerable<Tenant> GetTenantsAsync()
@@ -26,7 +29,14 @@ namespace PolicyInitiativeEditor.Client.Domain
         {
             var tenantCollection = armClient.GetTenants();
             var tenant = await tenantCollection.FirstAsync(t => t.Data.TenantId == Guid.Parse(selectedTenant.Id));
-            var customPoliciesManagementGroupId = "";//configuration.GetValue<string>("CustomPoliciesManagementGroupId");
+            var customPoliciesManagementGroupId = configuration.GetValue<string>("CustomPoliciesManagementGroupId");
+
+            //var mgs = tenant.GetManagementGroups();
+            //await foreach (var mg in mgs.GetAllAsync())
+            //{
+            //    Console.WriteLine(mg.Data.DisplayName);
+            //}
+
             if (string.IsNullOrWhiteSpace(customPoliciesManagementGroupId))
             {
                 customPoliciesManagementGroupId = tenant.Data.TenantId.ToString();
