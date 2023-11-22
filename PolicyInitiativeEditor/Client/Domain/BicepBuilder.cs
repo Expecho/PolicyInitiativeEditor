@@ -37,10 +37,16 @@ namespace PolicyInitiativeEditor.Client.Domain
 
         private static List<string> BuildPolicyOutput(Policy policy)
         {
+            var policyId = policy.Type switch
+            {
+                "BuiltIn" => $"tenantResourceId('Microsoft.Authorization/policyDefinitions', '{policy.Id}')",
+                _ => $"extensionResourceId(mgScope, 'Microsoft.Authorization/policyDefinitions', '{policy.Id}')"
+            };
+
             var policyDefinition = new List<string>
             { 
                 "\t{",
-                $"\t\tpolicyDefinitionId: '{policy.Id}'",
+                $"\t\tpolicyDefinitionId: {policyId}",
                 $"\t\tpolicyDefinitionReferenceId: '{policy.Name}'",
                 "\t}"
             };

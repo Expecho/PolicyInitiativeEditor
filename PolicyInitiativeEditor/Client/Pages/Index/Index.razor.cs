@@ -12,7 +12,10 @@ namespace PolicyInitiativeEditor.Client.Pages.Index
 
         protected override async Task OnInitializedAsync()
         {
-            var settings = (Settings)await DialogService.OpenAsync<SettingsComponent>("Settings");
+            var settings = (Settings)await DialogService.OpenAsync<SettingsComponent>(string.Empty, options: new DialogOptions
+            {
+                ShowTitle = false
+            });
             policies = await azureResourceRepository.GetPoliciesAsync(settings.Tenant).ToListAsync();
 
             if(settings.BicepTemplate != null)
