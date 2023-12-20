@@ -39,7 +39,7 @@ namespace PolicyInitiativeEditor.Client.Domain
         {
             var policyId = policy.Type switch
             {
-                "BuiltIn" => $"tenantResourceId('Microsoft.Authorization/policyDefinitions', '{policy.Id}')",
+                "BuiltIn" => $"tenantResourceId('Microsoft.Authorization/policyDefinitions', '{policy.Id.Replace("/providers/Microsoft.Authorization/policyDefinitions/", string.Empty)}')",
                 _ => $"extensionResourceId(mgScope, 'Microsoft.Authorization/policyDefinitions', '{policy.Id}')"
             };
 
