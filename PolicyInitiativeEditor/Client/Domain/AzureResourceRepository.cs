@@ -1,20 +1,13 @@
 ﻿using System.Text.Json.Nodes;
 using Azure.ResourceManager;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using PolicyInitiativeEditor.Client.Models;
 
 namespace PolicyInitiativeEditor.Client.Domain
 {
-    public class AzureResourceRepository
+    public class AzureResourceRepository(ArmClient armClient, IConfiguration configuration)
     {
-        private readonly ArmClient armClient;
-        private readonly IConfiguration configuration;
-
-        public AzureResourceRepository(ArmClient armClient, IConfiguration configuration)
-        {
-            this.armClient = armClient;
-            this.configuration = configuration;
-        }
+        private readonly ArmClient armClient = armClient;
+        private readonly IConfiguration configuration = configuration;
 
         public async IAsyncEnumerable<Tenant> GetTenantsAsync()
         {
@@ -29,19 +22,15 @@ namespace PolicyInitiativeEditor.Client.Domain
         {
             var tenantCollection = armClient.GetTenants();
             var tenant = await tenantCollection.FirstAsync(t => t.Data.TenantId == Guid.Parse(selectedTenant.Id));
-            var customPoliciesManagementGroupId = configuration.GetValue<string>("CustomPoliciesManagementGroupId");
+            var managementGroupId = configuration.GetValue<string?>("ManagementGroupId");
 
-            //var mgs = tenant.GetManagementGroups();
-            //await foreach (var mg in mgs.GetAllAsync())
-            //{
-            //    Console.WriteLine(mg.Data.DisplayName);
-            //}
-
-            if (string.IsNullOrWhiteSpace(customPoliciesManagementGroupId))
+            if (string.IsNullOrWhiteSpace(managementGroupId))
             {
-                customPoliciesManagementGroupId = tenant.Data.TenantId.ToString();
+                managementGroupId = tenant.Data.TenantId.ToString();
             }
-            var policyDefinitions = (await tenant.GetManagementGroupAsync(customPoliciesManagementGroupId)).Value.GetManagementGroupPolicyDefinitions();
+
+            var rootManagementGroup  = await tenant.GetManagementGroupAsync(managementGroupId);
+            var policyDefinitions = rootManagementGroup.Value.GetManagementGroupPolicyDefinitions();
 
             await foreach (var page in policyDefinitions.GetAllAsync().AsPages(pageSizeHint: 100))
             {
