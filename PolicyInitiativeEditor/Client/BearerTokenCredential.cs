@@ -24,14 +24,7 @@ namespace PolicyInitiativeEditor.Client
                 .GetAwaiter()
                 .GetResult();
 
-            if (tokenResult.TryGetToken(out var token))
-            {
-                return new Azure.Core.AccessToken(token.Value, token.Expires);
-            }
-            else
-            {
-                throw new AccessTokenNotAvailableException(_navigation, tokenResult, _scopes);
-            }
+            return GetAccessToken(tokenResult);
         }
 
         public override async ValueTask<Azure.Core.AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
@@ -39,14 +32,14 @@ namespace PolicyInitiativeEditor.Client
             var tokenResult = await _tokenProvider.RequestAccessToken()
                 .ConfigureAwait(false);
 
-            if (tokenResult.TryGetToken(out var token))
-            {
-                return new Azure.Core.AccessToken(token.Value, token.Expires);
-            }
-            else
-            {
-                throw new AccessTokenNotAvailableException(_navigation, tokenResult, _scopes);
-            }
+            return GetAccessToken(tokenResult);
+        }
+
+        private Azure.Core.AccessToken GetAccessToken(AccessTokenResult tokenResult)
+        {
+            return tokenResult.TryGetToken(out var token)
+                ? new Azure.Core.AccessToken(token.Value, token.Expires)
+                : throw new AccessTokenNotAvailableException(_navigation, tokenResult, _scopes);
         }
     }
 }

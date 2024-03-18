@@ -4,14 +4,16 @@ namespace PolicyInitiativeEditor.Client.Domain
 {
     public class BicepBuilder
     {
-        private List<string> initiative = new();
-        private List<string> policiesInInitiative = new();
+        private List<string> initiative = [];
+        private List<string> policiesInInitiative = [];
         private int indexOfPolicyDefinitionSection;
 
         public string CreateBicepFromPolicies(string sourceTemplate, IEnumerable<Policy> policies)
         {
-            if(!initiative.Any())
+            if (!initiative.Any())
+            {
                 initiative = sourceTemplate.Split("\n").ToList();
+            }
 
             indexOfPolicyDefinitionSection = DetermineIndexOfPolicyDefinitionSection();
             policiesInInitiative = FindPolicies();
@@ -44,7 +46,7 @@ namespace PolicyInitiativeEditor.Client.Domain
             };
 
             var policyDefinition = new List<string>
-            { 
+            {
                 "\t{",
                 $"\t\tpolicyDefinitionId: {policyId}",
                 $"\t\tpolicyDefinitionReferenceId: '{policy.Name}'",
@@ -61,7 +63,9 @@ namespace PolicyInitiativeEditor.Client.Domain
             var parameters = new List<string>();
 
             if (!policy.Parameters.Any())
+            {
                 return parameters;
+            }
 
             parameters.Add("\t\tparameters: {");
 
@@ -86,22 +90,30 @@ namespace PolicyInitiativeEditor.Client.Domain
             var countOfClosed = 0;
             var index = startIndex;
 
-            if(startIndex == -1)
+            if (startIndex == -1)
+            {
                 return;
+            }
 
             while (countOfOpen != countOfClosed && index < initiative.Count)
             {
                 var line = initiative[index];
                 if (line.Contains('{'))
+                {
                     ++countOfOpen;
+                }
                 else if (line.Contains('}'))
+                {
                     ++countOfClosed;
+                }
 
                 ++index;
             }
 
-            if(index != initiative.Count)
+            if (index != initiative.Count)
+            {
                 initiative.RemoveRange(startIndex - 1, index - startIndex + 1);
+            }
         }
 
         private List<string> FindPolicies()

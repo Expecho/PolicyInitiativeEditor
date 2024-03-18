@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Components;
 using PolicyInitiativeEditor.Client.Domain;
 using PolicyInitiativeEditor.Client.Models;
-using System.Reflection;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
 {

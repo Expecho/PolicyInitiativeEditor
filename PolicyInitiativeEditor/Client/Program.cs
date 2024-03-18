@@ -18,20 +18,21 @@ builder.Services.AddSingleton<AzureResourceRepository>();
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
+    options.ProviderOptions.LoginMode = "redirect";
     options.ProviderOptions.DefaultAccessTokenScopes.Add("https://management.core.windows.net/user_impersonation");
 });
 var scopes = new List<string>() {
     "https://management.core.windows.net/user_impersonation",
 };
 
-builder.Services.AddAzureClients(b =>
+builder.Services.AddAzureClients(clientFactoryBuilder =>
 {
-    var sp = builder.Services.BuildServiceProvider();
+    var serviceProvider = builder.Services.BuildServiceProvider();
 
-    var tokenProvider = sp.GetRequiredService<IAccessTokenProvider>();
-    var navigation = sp.GetRequiredService<NavigationManager>();
+    var tokenProvider = serviceProvider.GetRequiredService<IAccessTokenProvider>();
+    var navigation = serviceProvider.GetRequiredService<NavigationManager>();
 
-    b.AddClient<ArmClient, ArmClientOptions>(o =>
+    clientFactoryBuilder.AddClient<ArmClient, ArmClientOptions>(_ =>
     {
         return new ArmClient(new BearerTokenCredential(tokenProvider, navigation, scopes));
     });

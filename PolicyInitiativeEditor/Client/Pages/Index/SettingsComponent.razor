@@ -1,9 +1,0 @@
-﻿@using PolicyInitiativeEditor.Client.Models
-@inject AzureResourceRepository azureResourceRepository
-@inject DialogService DialogService
-
-<p>Select the tenant to work with.</p>
-<RadzenListBox TValue="Tenant" Data=@tenants @bind-Value=@SelectedTenant></RadzenListBox>
-<p>Optionally upload a bicep template that defines a policy intiative to edit.</p>
-<InputFile OnChange="OnInputFileChange" class="btn btn-primary"></InputFile>
-<RadzenButton Text="Ok" Click="() => DialogService.Close(new Settings(SelectedTenant, BicepTemplate))" />

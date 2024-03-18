@@ -1,7 +1,6 @@
 ﻿@page "/"
 @using PolicyInitiativeEditor.Client.Domain
 @using PolicyInitiativeEditor.Client.Models
-@inject DialogService DialogService
 @inject AzureResourceRepository azureResourceRepository
 
 <PageTitle>Policy Initiative Bicep Builder</PageTitle>
@@ -20,12 +19,13 @@
         <h1>Policy Initiative Bicep Builder</h1>
         <RadzenStack Class="rz-m-12" Gap="2rem" Visible="@busyInitializing">
             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
-            <RadzenText TextAlign="TextAlign.Center">Retrieving policy definitions</RadzenText>
+            <RadzenText TextAlign="TextAlign.Center">Retrieving policy definitions ...</RadzenText>
         </RadzenStack>
         <RadzenTabs TabPosition="TabPosition.Top" Gap="0.5rem" Class="rz-pt-4 rz-pb-8" Visible="@(!busyInitializing)">
             <Tabs>
                 <RadzenTabsItem Text="Define Initiative">
-                    <p>Select the policies that should be assigned to the initiative.</p>
+                    <p>Select the policies that should be assigned to the initiative. Optionally upload an existing bicep template containing a policy initiative definiton to add the policy definitions to. </p>
+                    <InputFile OnChange="OnInputFileChange" class="btn btn-primary"></InputFile>
                     <PolicyGridComponent Policies=@policies SelectedPolicies=@selectedPolicies SelectedPoliciesChanged="OnSelectedPoliciesChanged" />
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Create Bicep">

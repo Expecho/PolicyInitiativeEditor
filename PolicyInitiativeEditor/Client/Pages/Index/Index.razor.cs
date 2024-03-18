@@ -1,34 +1,31 @@
-﻿using PolicyInitiativeEditor.Client.Models;
+﻿using System.Text;
+using Microsoft.AspNetCore.Components.Forms;
+using PolicyInitiativeEditor.Client.Models;
 using Radzen;
 
 namespace PolicyInitiativeEditor.Client.Pages.Index
 {
     public partial class Index
     {
-        private IEnumerable<Policy> policies = new List<Policy>();
-        private IList<Policy> selectedPolicies = new List<Policy>();
+        private IEnumerable<Policy> policies = [];
+        private IList<Policy> selectedPolicies = [];
         private string existingInitiative = string.Empty;
         private bool busyInitializing = true;
 
         protected override async Task OnInitializedAsync()
         {
-            var settings = (Settings)await DialogService.OpenAsync<SettingsComponent>(string.Empty, options: new DialogOptions
-            {
-                ShowTitle = false
-            });
-            policies = await azureResourceRepository.GetPoliciesAsync(settings.Tenant).ToListAsync();
-
-            if(settings.BicepTemplate != null)
-            {
-                SelectPoliciesBasedOnUploadedBicepTemplate(settings);
-            }
-
+            policies = await azureResourceRepository.GetPoliciesAsync().ToListAsync();
             busyInitializing = false;
         }
 
-        private void SelectPoliciesBasedOnUploadedBicepTemplate(dynamic settings)
+        private async Task OnInputFileChange(InputFileChangeEventArgs e)
         {
-            existingInitiative = settings.BicepTemplate;
+            using var stream = e.File.OpenReadStream();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            stream.Close();
+
+            existingInitiative = Encoding.UTF8.GetString(ms.ToArray());
             var bicep = existingInitiative.Split("\n").ToList();
 
             var policiesInExisitingInitiative = FindPolicies(bicep);
@@ -38,7 +35,7 @@ namespace PolicyInitiativeEditor.Client.Pages.Index
         private void OnSelectedPoliciesChanged(IList<Policy> policies)
         {
             selectedPolicies = policies;
-        }        
+        }
 
         private static List<string> FindPolicies(List<string> bicep)
         {
