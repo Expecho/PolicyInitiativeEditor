@@ -7,7 +7,7 @@
 
 ## Resource Graph Explorer Queries
 
-### Get a list of al exemptions
+### Get a list of all exemptions
 
 ```sql
 policyresources
