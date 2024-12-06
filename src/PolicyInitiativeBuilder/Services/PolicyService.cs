@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Nodes;
-using Azure;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Microsoft.Identity.Web;
