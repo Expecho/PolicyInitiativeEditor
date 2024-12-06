@@ -1,3 +1,4 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -14,6 +15,8 @@ builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
 
 var initialScopes = new[] { "https://management.azure.com/user_impersonation" };
+
+builder.Services.AddOpenTelemetry().UseAzureMonitor();
 
 builder.Services.AddScoped<PolicyService>();
 builder.Services.AddScoped<BicepBuilder>();
