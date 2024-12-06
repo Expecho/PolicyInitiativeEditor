@@ -16,7 +16,7 @@ public partial class Home(PolicyService policyService, NotificationService notif
     private bool busyInitializing = true;
 
     [CascadingParameter]
-    protected Tenant Tenant { get; set; }
+    protected Tenant Tenant { get; set; } = Tenant.Empty;
 
     protected override async Task OnInitializedAsync()
     {

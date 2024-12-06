@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Identity.Web;
 using PolicyInitiativeBuilder.Models;
 using PolicyInitiativeBuilder.Services;
 
 namespace PolicyInitiativeBuilder.Components.Layout;
 
-public partial class MainLayout(TenantService tenantService, IMemoryCache tenantsCache)
+public partial class MainLayout(TenantService tenantService)
 {
     private IEnumerable<Tenant> tenants = [];
 
