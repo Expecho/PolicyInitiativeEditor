@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>b8ee958a-6dfa-49db-9606-942eec74eddc</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\template.bicep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\template.bicep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Azure.ResourceManager" Version="1.13.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" NoWarn="NU1605" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" NoWarn="NU1605" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="3.2.2" />
+		<PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="3.2.2" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.2" />
+		<PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="3.0.0" />
+		<PackageReference Include="Radzen.Blazor" Version="5.6.0" />
+		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
+	</ItemGroup>
+</Project>

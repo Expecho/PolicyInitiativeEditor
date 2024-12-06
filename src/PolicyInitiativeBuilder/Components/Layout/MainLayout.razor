@@ -1,0 +1,36 @@
+﻿@using PolicyInitiativeBuilder.Components.Pages
+@using PolicyInitiativeBuilder.Models
+@inject NavigationManager Navigation
+@inherits LayoutComponentBase
+
+<RadzenComponents @rendermode="InteractiveServer" />
+
+<div class="page">
+    <main>
+        <div class="top-row">
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+                        <RadzenLabel Text="Tenant" Component="DropDownBindValue" />
+                        <RadzenDropDown @bind-Value=@Tenant Data=@tenants TValue="Tenant" SelectedItemChanged="@(tenant => OnTenantChanged((Tenant)tenant))" TextProperty="@nameof(Tenant.DisplayName)" Style="width: 100%; max-width: 400px;" Name="DropDownBindValue" />
+                    </RadzenStack>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="MicrosoftIdentity/Account/SignIn">Log in</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+        <CascadingValue Value="Tenant">
+            <article class="content px-4">
+                @Body
+            </article>
+        </CascadingValue>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

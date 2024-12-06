@@ -1,0 +1,16 @@
+﻿@using PolicyInitiativeBuilder.Models
+@using Radzen
+@using Radzen.Blazor
+
+<RadzenDataGrid Data="@Policies" TItem="Policy" AllowColumnResize=true AllowSorting=true
+                AllowMultiColumnSorting=true AllowFiltering=true FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowGrouping=true AllowAlternatingRows=true
+                SelectionMode="DataGridSelectionMode.Multiple" AllowPaging=true PageSize="25" AllowColumnPicking=true
+                PagerPosition="PagerPosition.TopAndBottom"
+                ValueChanged="OnSelectedPoliciesChanged" Value="SelectedPolicies">
+    <Columns>
+        <RadzenDataGridColumn TItem="Policy" Property="Category" Title="Category" SortOrder="SortOrder.Ascending" Width="175px" />
+        <RadzenDataGridColumn TItem="Policy" Property="Type" Title="Type" Width="125px" />
+        <RadzenDataGridColumn TItem="Policy" Property="Name" Title="Name" SortOrder="SortOrder.Ascending" />
+        <RadzenDataGridColumn TItem="Policy" Property="Description" Title="Description" Groupable=false Sortable=false />
+    </Columns>
+</RadzenDataGrid>
