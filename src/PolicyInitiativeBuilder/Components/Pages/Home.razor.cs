@@ -13,16 +13,9 @@ public partial class Home(PolicyService policyService, NotificationService notif
     private IEnumerable<Policy> policies = [];
     private IList<Policy> selectedPolicies = [];
     private string existingInitiative = string.Empty;
-    private bool busyInitializing = true;
 
     [CascadingParameter]
     protected Tenant Tenant { get; set; } = Tenant.Empty;
-
-    protected override async Task OnInitializedAsync()
-    {
-
-        busyInitializing = false;
-    }
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
