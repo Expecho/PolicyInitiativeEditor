@@ -2,7 +2,7 @@ name: Build and deploy .NET application to container app policyinitiativebuilder
 on:
   push:
     branches:
-    - main
+    - master
 env:
   CONTAINER_APP_CONTAINER_NAME: policyinitiativebuilder
   CONTAINER_APP_NAME: policyinitiativebuilder
