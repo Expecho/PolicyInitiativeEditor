@@ -5,15 +5,6 @@ on:
   push:
     branches:
       - master
-
-env:
-  RESOURCE_GROUP_NAME: rg-policy-initiative-builder
-  BICEP_TEMPLATE: bicep/deploy.bicep
-  BICEP_DEPLOY_MODE: Incremental
-  ACR_SERVER: containerregistryexpecho
-  ACR_IMAGE: policyinitiativebuilder
-  DOCKER_FILE: ./src/PolicyInitiativeBuilder/Dockerfile
-  DOCKER_WORKING_DIRECTORY: ./src/PolicyInitiativeBuilder/
       
 permissions:
   contents: read # Allow repo checkout
@@ -25,12 +16,12 @@ jobs:
     name: Build Web App Docker image and push it to registry
     uses: ./.github/workflows/reusable_docker_build_and_push_to_acr.yml
     with:
-      docker-file: ${{ github.env.DOCKER_FILE }}
-      working-directory: ${{ github.env.DOCKER_WORKING_DIRECTORY }}
-      acr-name: ${{ github.env.ACR_SERVER }}
+      docker-file: ./src/PolicyInitiativeBuilder/Dockerfile
+      working-directory: ./src/PolicyInitiativeBuilder/
+      acr-name: containerregistryexpecho
       container-tags: |
-         ${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:latest
-         ${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:build-${{ github.run_number }}
+         containerregistryexpecho.azurecr.io/policyinitiativebuilder:latest
+         containerregistryexpecho.azurecr.io/policyinitiativebuilder:build-${{ github.run_number }}
     secrets:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -41,10 +32,10 @@ jobs:
     name: Validate and deploy infrastructure
     uses: ./.github/workflows/reusable_deploy_bicep_if_valid.yml
     with:
-      resourceGroupName: ${{ github.env.RESOURCE_GROUP_NAME }}
-      template:  ${{ github.env.BICEP_TEMPLATE }}
-      parameters: cappImageName=${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:build-${{ github.run_number }}
-      mode: ${{ github.env.BICEP_DEPLOY_MODE }}
+      resourceGroupName: rg-policy-initiative-builder
+      template:  bicep/deploy.bicep
+      parameters: cappImageName=containerregistryexpecho.azurecr.io/policyinitiativebuilder:build-${{ github.run_number }}
+      mode: Incremental
       tags: app=policyinitiativebuilder
     secrets:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
