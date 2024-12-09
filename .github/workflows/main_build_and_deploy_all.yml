@@ -43,8 +43,10 @@ jobs:
     with:
       resourceGroupName: ${{ github.env.RESOURCE_GROUP_NAME }}
       template:  ${{ github.env.BICEP_TEMPLATE }}
+      tags: 
       parameters: cappImageName=${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:build-${{ github.run_number }}
       mode: ${{ github.env.BICEP_DEPLOY_MODE }}
+      tags: app=policyinitiativebuilder
     secrets:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
