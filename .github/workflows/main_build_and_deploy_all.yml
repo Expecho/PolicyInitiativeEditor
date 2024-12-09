@@ -16,7 +16,7 @@ jobs:
     name: Build Web App Docker image and push it to registry
     uses: ./.github/workflows/reusable_docker_build_and_push_to_acr.yml
     with:
-      docker-file: ./src/PolicyInitiativeBuilder/Dockerfile
+      docker-file: ./src/PolicyInitiativeBuilder/DOCKERFILE
       working-directory: ./src/PolicyInitiativeBuilder/
       acr-name: containerregistryexpecho
       container-tags: |
