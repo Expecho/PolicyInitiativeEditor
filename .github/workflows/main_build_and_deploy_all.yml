@@ -25,12 +25,12 @@ jobs:
     name: Build Web App Docker image and push it to registry
     uses: ./.github/workflows/reusable_docker_build_and_push_to_acr.yml
     with:
-      docker-file: ${{ env.DOCKER_FILE }}
-      working-directory: ${{ env.DOCKER_WORKING_DIRECTORY }}
-      acr-name: ${{ env.ACR_SERVER }}
+      docker-file: ${{ github.env.DOCKER_FILE }}
+      working-directory: ${{ github.env.DOCKER_WORKING_DIRECTORY }}
+      acr-name: ${{ github.env.ACR_SERVER }}
       container-tags: |
-         ${{ env.ACR_SERVER }}.azurecr.io/${{ env.IMAGE }}:latest
-         ${{ env.ACR_SERVER }}.azurecr.io/${{ env.IMAGE }}:build-${{ github.run_number }}
+         ${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:latest
+         ${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:build-${{ github.run_number }}
     secrets:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -41,10 +41,10 @@ jobs:
     name: Validate and deploy infrastructure
     uses: ./.github/workflows/reusable_deploy_bicep_if_valid.yml
     with:
-      resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
-      template:  ${{ env.BICEP_TEMPLATE }}
-      parameters: cappImageName=${{ env.ACR_SERVER }}.azurecr.io/${{ env.IMAGE }}:build-${{ github.run_number }}
-      mode: ${{ env.BICEP_DEPLOY_MODE }}
+      resourceGroupName: ${{ github.env.RESOURCE_GROUP_NAME }}
+      template:  ${{ github.env.BICEP_TEMPLATE }}
+      parameters: cappImageName=${{ github.env.ACR_SERVER }}.azurecr.io/${{ github.env.IMAGE }}:build-${{ github.run_number }}
+      mode: ${{ github.env.BICEP_DEPLOY_MODE }}
     secrets:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
