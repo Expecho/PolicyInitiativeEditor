@@ -3,7 +3,7 @@ param location string = resourceGroup().location
 param workloadProfileType string = 'consumption'
 param workloadProfileMinimumCount int = 0
 param workloadProfileMaximumCount int = 1
-param workloadProfileName string = 'container'
+param workloadProfileName string = 'Consumption'
 
 param cappName string = 'policyinitativebuilder'
 param cappConsumptionCpu string = '0.5'
@@ -128,6 +128,6 @@ resource containerAppInConsumptionWorkloadProfile 'Microsoft.App/containerApps@2
         minReplicas: 1
       }
     }
-    workloadProfileName: 'Consumption'
+    workloadProfileName: workloadProfileName
   }
 }
