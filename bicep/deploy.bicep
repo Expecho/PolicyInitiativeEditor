@@ -30,7 +30,15 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
       {
         name: subnetName
         properties: {
-          addressPrefix: '10.0.0.0/23'
+          delegations: [
+            {
+              name: ' MicrosoftAppEnvironments'
+              properties: {
+                serviceName: 'Microsoft.App/environments'
+              }
+            }
+          ]
+          addressPrefix: '10.0.0.0/27'
         }
       }
     ]
