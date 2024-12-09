@@ -1,0 +1,75 @@
+name: "Deploy: infrastructure"
+
+on:
+  workflow_call:
+    inputs:
+      resourceGroupName:
+        description: "Name of the resource group"
+        required: true
+        type: string
+      location:
+        description: "Location of the resource group"
+        required: false
+        type: string
+        default: "West Europe"
+      tags:
+        description: "Space-separated tags for the resource group: key[=value] [key[=value] ...]"
+        required: true
+        type: string
+      template:
+        description: "Path to template file"
+        required: true
+        type: string
+      parameters:
+        description: "Path to parameters file"
+        required: true
+        type: string
+      mode:
+        description: "The deployment mode, accepted values: Complete, Incremental"
+        required: false
+        type: string
+        default: "Incremental"      
+
+    secrets:
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+
+jobs:
+  validate-infrastructure:
+    name: "Az deployment what-if "
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      - name: "Az CLI what-if deployment"
+        run: |
+          az group create --name ${{ inputs.resourceGroupName }} --location '${{ inputs.location }}' --tags ${{ inputs.tags }}
+          az deployment group what-if --resource-group ${{ inputs.resourceGroupName }} --template-file ${{ inputs.template }} --parameters ${{ inputs.parameters }}
+
+  deploy-infrastructure-if:
+    name: "Az deployment"
+    needs: "validate-infrastructure"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      - name: "Az CLI login"
+        uses: azure/login@v1
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      - name: "Deploy to Azure"
+        run: |
+          az group create --name ${{ inputs.resourceGroupName }} --location '${{ inputs.location }}' --tags ${{inputs.tags}}
+          az deployment group create --resource-group ${{ inputs.resourceGroupName }} --template-file ${{ inputs.template }} --parameters ${{ inputs.parameters }} --mode ${{ inputs.mode }}

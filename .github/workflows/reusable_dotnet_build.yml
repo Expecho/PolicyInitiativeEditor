@@ -1,0 +1,49 @@
+name: "Build: dotnet"
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: ".NET cli version"
+        required: false
+        default: 9.0.x
+        type: string
+      project-folder:
+        description: "Path to the project"
+        required: true
+        type: string
+      publish-args:
+        description: "Arguments for dotnet publish, excluding --output"
+        required: false
+        default: -c Release --nologo
+        type: string
+      artifact-name:
+        description: "Name for the build artifact"
+        required: true
+        type: string
+
+env:
+  PUBLISH_FOLDER_NAME: pubDir
+
+jobs:
+  build:
+    name: "Build solution"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.project-folder }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Publish
+        run: dotnet publish -o ${{ env.PUBLISH_FOLDER_NAME }} ${{ inputs.publish-args }}
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.project-folder }}/${{ env.PUBLISH_FOLDER_NAME }}
+          retention-days: 30
+          if-no-files-found: error

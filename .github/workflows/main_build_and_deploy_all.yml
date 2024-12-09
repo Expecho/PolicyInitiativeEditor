@@ -1,0 +1,51 @@
+name: "Main: build and deploy all"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+env:
+  RESOURCE_GROUP_NAME: rg-policy-initiative-builder
+  BICEP_TEMPLATE: bicep/deploy.bicep
+  BICEP_DEPLOY_MODE: Incremental
+  ACR_SERVER: containerregistryexpecho
+  ACR_IMAGE: policyinitiativebuilder
+  DOCKER_FILE: ./src/PolicyInitiativeBuilder/Dockerfile
+  DOCKER_WORKING_DIRECTORY: ./src/PolicyInitiativeBuilder/
+      
+permissions:
+  contents: read # Allow repo checkout
+  checks: write # Allow write check results (test reporter)
+  id-token: write # Allow requesting OIDC JWT
+
+jobs:
+  build-and-push-app:
+    name: Build Web App Docker image and push it to registry
+    uses: ./.github/workflows/reusable_docker_build_and_push_to_acr.yml
+    with:
+      docker-file: ${{ env.DOCKER_FILE }}
+      working-directory: ${{ env.DOCKER_WORKING_DIRECTORY }}
+      acr-name: ${{ env.ACR_SERVER }}
+      container-tags: |
+         ${{ env.ACR_SERVER }}.azurecr.io/${{ env.IMAGE }}:latest
+         ${{ env.ACR_SERVER }}.azurecr.io/${{ env.IMAGE }}:build-${{ github.run_number }}
+    secrets:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+
+  deploy-infra:
+    needs : build-and-push-app
+    name: Validate and deploy infrastructure
+    uses: ./.github/workflows/reusable_deploy_bicep_if_valid.yml
+    with:
+      resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
+      template:  ${{ env.BICEP_TEMPLATE }}
+      parameters: cappImageName=${{ env.ACR_SERVER }}.azurecr.io/${{ env.IMAGE }}:build-${{ github.run_number }}
+      mode: ${{ env.BICEP_DEPLOY_MODE }}
+    secrets:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}      
