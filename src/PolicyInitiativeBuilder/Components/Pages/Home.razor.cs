@@ -13,6 +13,7 @@ public partial class Home(PolicyService policyService, NotificationService notif
     private IEnumerable<Policy> policies = [];
     private IList<Policy> selectedPolicies = [];
     private string existingInitiative = string.Empty;
+    private bool busyInitializing = true;
 
     [CascadingParameter]
     protected Tenant Tenant { get; set; } = Tenant.Empty;
@@ -46,6 +47,8 @@ public partial class Home(PolicyService policyService, NotificationService notif
 
     protected override async Task OnParametersSetAsync()
     {
+        busyInitializing = true;
+
         policies = [];
         if (Tenant.IsEmpty)
         {
@@ -66,6 +69,10 @@ public partial class Home(PolicyService policyService, NotificationService notif
         catch
         {
             notificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "An error occured", CloseOnClick = true, Duration = 5000 });
+        }
+        finally
+        {
+            busyInitializing = false;
         }
 
         await base.OnParametersSetAsync();
