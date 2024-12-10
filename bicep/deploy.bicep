@@ -1,15 +1,13 @@
 param location string = resourceGroup().location
 
 param workloadProfileType string = 'consumption'
-param workloadProfileMinimumCount int = 0
-param workloadProfileMaximumCount int = 1
 param workloadProfileName string = 'Consumption'
 
 param cappName string = 'policyinitativebuilder'
 param cappConsumptionCpu string = '0.5'
 param cappConsumptionMemory string = '1'
-param cappImageName string = 'expechocontainerregistry.azurecr.io/policyinitativebuilder:latest'
-param cappImageServer string = 'expechocontainerregistry.azurecr.io'
+param cappImageName string = 'containerregistryexpecho.azurecr.io/policyinitiativebuilder:latest'
+param cappImageServer string = 'containerregistryexpecho.azurecr.io'
 
 param vnnetName string = 'vnet-policyinitativebuilder'
 param subnetName string = 'subnet-policyinitativebuilder'
@@ -38,15 +36,15 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
               }
             }
           ]
-          addressPrefix: '10.0.0.0/27'
+          addressPrefix: '10.0.0.0/23'
         }
       }
     ]
   }
 }
 
-resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-08-02-preview' = {
-  name: 'PolicyInitativeBuilder'
+resource containerAppEnv  'Microsoft.App/managedEnvironments@2024-08-02-preview' = {
+  name: cappName
   location: location
   properties: {
     appLogsConfiguration: {
@@ -56,17 +54,15 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-08-02-preview' 
         sharedKey: laWorkspace.listKeys().primarySharedKey
       }
     }
+    workloadProfiles: [
+      {
+        name: workloadProfileName
+        workloadProfileType: workloadProfileType
+      }
+    ]
     vnetConfiguration: {
       infrastructureSubnetId: vnet.properties.subnets[0].id
     }
-    workloadProfiles: [
-      { 
-        name: workloadProfileName
-        workloadProfileType: workloadProfileType
-        minimumCount: workloadProfileMinimumCount
-        maximumCount: workloadProfileMaximumCount
-      }
-    ]
   }
 }
 
@@ -92,11 +88,14 @@ resource laWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' ={
   }
 }
 
-resource containerAppInConsumptionWorkloadProfile 'Microsoft.App/containerApps@2024-08-02-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: cappName
   location: location
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${uai.id}': {}
+    }
   }
   properties: {
     configuration: {
@@ -108,7 +107,7 @@ resource containerAppInConsumptionWorkloadProfile 'Microsoft.App/containerApps@2
       }
       registries: [
         {
-          identity: 'system'
+          identity: uai.id
           server: cappImageServer
         }
       ]
@@ -117,6 +116,7 @@ resource containerAppInConsumptionWorkloadProfile 'Microsoft.App/containerApps@2
     template: {
       containers: [
         {
+          name: cappName
           image: cappImageName
           resources: {
             cpu: json('${cappConsumptionCpu}')
@@ -125,9 +125,23 @@ resource containerAppInConsumptionWorkloadProfile 'Microsoft.App/containerApps@2
         }
       ]
       scale: {
-        minReplicas: 1
+        minReplicas: 0
       }
     }
     workloadProfileName: workloadProfileName
+  }
+}
+
+resource uai 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+  name: 'id-${cappName}'
+  location: location
+}
+
+module webapp './roleassignment.bicep' = {
+  name: 'roleassignment'
+  scope: resourceGroup('rg-shared')
+  params: {
+    userAssignedIdentityName: uai.name
+    userAssignedIdentityId: uai.properties.principalId
   }
 }
