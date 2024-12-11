@@ -90,6 +90,9 @@ resource laWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' ={
 
 var keyVaultSecretUrl = 'https://keyvaultexpecho${environment().suffixes.keyvaultDns}/secrets/policyinitiativebuilder-clientsecret/91919b737b6545fda6c32f9bb256eb25'
 resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
+  dependsOn: [
+    roleAssignments
+  ]
   name: cappName
   location: location
   identity: {
@@ -155,7 +158,7 @@ resource uai 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-previe
   location: location
 }
 
-module webapp './roleassignment.bicep' = {
+module roleAssignments './roleassignment.bicep' = {
   name: 'roleassignment'
   scope: resourceGroup('rg-shared')
   params: {
