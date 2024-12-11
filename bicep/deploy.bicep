@@ -142,6 +142,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               name: 'AzureAd__ClientSecret'
               secretRef: 'clientsecret' 
             }
+            {
+              name: 'ASPNETCORE_FORWARDEDHEADERS_ENABLED'
+              value: 'true'
+            }
           ]
         }
       ]
