@@ -1,5 +1,7 @@
 # Policy Initiative Bicep Builder
 
+Accessible at https://policyinitiativebuilder.yellowbay-9c92f1d3.westeurope.azurecontainerapps.io/
+
 ## Tools & Resources
 
 - [Radzen Blazor Components](https://blazor.radzen.com/docs/index.html)
