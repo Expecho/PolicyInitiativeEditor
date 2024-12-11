@@ -85,6 +85,7 @@ app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseForwardedHeaders();
     app.UseHsts();
 }
 
@@ -92,7 +93,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAntiforgery();
-app.UseForwardedHeaders();
 app.MapControllers();
 app.MapRazorPages();
 app.MapStaticAssets();
