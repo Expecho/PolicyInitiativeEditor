@@ -3,17 +3,17 @@ param location string = resourceGroup().location
 param workloadProfileType string = 'consumption'
 param workloadProfileName string = 'Consumption'
 
-param cappName string = 'policyinitativebuilder'
+param cappName string = 'policyinitiativebuilder'
 param cappConsumptionCpu string = '0.5'
 param cappConsumptionMemory string = '1'
 param cappImageName string = 'containerregistryexpecho.azurecr.io/policyinitiativebuilder:latest'
 param cappImageServer string = 'containerregistryexpecho.azurecr.io'
 
-param vnnetName string = 'vnet-policyinitativebuilder'
-param subnetName string = 'subnet-policyinitativebuilder'
+param vnnetName string = 'vnet-policyinitiativebuilder'
+param subnetName string = 'subnet-policyinitiativebuilder'
 
-param appInsightsName string = 'policyinitativebuilder-insights'
-param laWorkspaceName string = 'policyinitativebuilderlogwsexpecho'
+param appInsightsName string = 'policyinitiativebuilder-insights'
+param laWorkspaceName string = 'policyinitiativebuilderlogwsexpecho'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
   name: vnnetName
@@ -88,6 +88,7 @@ resource laWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' ={
   }
 }
 
+var keyVaultSecretUrl = 'https://keyvaultexpecho${environment().suffixes.keyvaultDns}/secrets/policyinitiativebuilder-clientsecret/91919b737b6545fda6c32f9bb256eb25'
 resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: cappName
   location: location
@@ -99,6 +100,13 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   }
   properties: {
     configuration: {
+      secrets: [
+        {
+          name: 'clientsecret'
+          keyVaultUrl: keyVaultSecretUrl
+          identity: uai.id
+        }
+      ]
       activeRevisionsMode: 'single'
       ingress: {
         allowInsecure: false
@@ -122,6 +130,16 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json('${cappConsumptionCpu}')
             memory: '${cappConsumptionMemory}Gi'
           }
+          env: [
+            {
+              name: 'AzureMonitor__ConnectionString'
+              value: appInsights.properties.ConnectionString
+            }
+            {
+              name: 'AzureAd__ClientSecret'
+              secretRef: 'clientsecret' 
+            }
+          ]
         }
       ]
       scale: {
