@@ -1,6 +1,12 @@
 # Policy Initiative Bicep Builder
 
+This app allows you to visually select one or more policies and generates or updates a bicep file to deploy a policy initiative.
+
 Accessible at https://policyinitiativebuilder.yellowbay-9c92f1d3.westeurope.azurecontainerapps.io/
+
+![image](https://github.com/user-attachments/assets/4ed81f73-4b5d-445e-9127-ef6fe09a3de0)
+
+![image](https://github.com/user-attachments/assets/e3d97066-d80a-40e6-aadd-147e9a306548)
 
 ## Tools & Resources
 
